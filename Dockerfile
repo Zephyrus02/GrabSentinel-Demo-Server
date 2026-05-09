@@ -2,7 +2,7 @@ FROM node:18-alpine
 WORKDIR /app
 
 COPY package.json tsconfig.json ./
-RUN npm install --production && npm install --no-save typescript@5.2.2
+RUN npm install --production && npm install --no-save typescript@5.2.2 @types/pg @types/express @types/body-parser
 
 COPY src ./src
 COPY migrations ./migrations

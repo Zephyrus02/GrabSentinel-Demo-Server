@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
 import { query, initMigrations } from "./db";
@@ -16,7 +16,7 @@ app.use(bodyParser.json());
 initMigrations();
 
 // Health
-app.get("/", async (req, res) => {
+app.get("/", async (req: Request, res: Response) => {
   try {
     // INTENTIONAL: calling API that may fail to show errors in logs
     const result = await query("SELECT count(*) FROM todo_items");
@@ -34,7 +34,7 @@ app.get("/", async (req, res) => {
 });
 
 // API: list todos
-app.get("/api/todos", async (req, res) => {
+app.get("/api/todos", async (req: Request, res: Response) => {
   try {
     // INTENTIONAL SQL BUG: refer to a non-existent column -> will error
     const r = await query(
@@ -53,7 +53,7 @@ app.get("/api/todos", async (req, res) => {
 });
 
 // API: create todo
-app.post("/api/todos", async (req, res) => {
+app.post("/api/todos", async (req: Request, res: Response) => {
   const title = (req.body.title || "").toString();
   try {
     // INTENTIONAL: insert into wrong column name 'name' instead of 'title'
@@ -74,7 +74,7 @@ app.post("/api/todos", async (req, res) => {
 });
 
 // UI create (renders redirect)
-app.post("/create", async (req, res) => {
+app.post("/create", async (req: Request, res: Response) => {
   try {
     await query("INSERT INTO todo_items(title) VALUES($1)", [req.body.title]);
   } catch (err) {
@@ -84,7 +84,7 @@ app.post("/create", async (req, res) => {
 });
 
 // Toggle endpoint with logical bug
-app.post("/toggle/:id", async (req, res) => {
+app.post("/toggle/:id", async (req: Request, res: Response) => {
   const id = parseInt(req.params.id, 10);
   try {
     // INTENTIONAL LOGIC BUG: update id+1 instead of id, so toggling wrong row
@@ -99,7 +99,7 @@ app.post("/toggle/:id", async (req, res) => {
 });
 
 // Delete endpoint with random deletion
-app.post("/delete/:id", async (req, res) => {
+app.post("/delete/:id", async (req: Request, res: Response) => {
   const id = parseInt(req.params.id, 10);
   try {
     // INTENTIONAL BUG: randomly delete a different id sometimes
@@ -113,7 +113,7 @@ app.post("/delete/:id", async (req, res) => {
 });
 
 // Fast endpoint to cause unhandled error intermittently
-app.get("/cause-error", (req, res) => {
+app.get("/cause-error", (req: Request, res: Response) => {
   if (Math.random() < 0.5) {
     // INTENTIONAL: throw unhandled exception
     throw new Error("random crash for testing");
@@ -122,7 +122,7 @@ app.get("/cause-error", (req, res) => {
 });
 
 // Global error handler logs stack
-app.use((err: any, req: any, res: any, next: any) => {
+app.use((err: any, req: Request, res: Response, next: any) => {
   console.error("[server] unhandled error", err && err.stack);
   res.status(500).send("internal server error");
 });
