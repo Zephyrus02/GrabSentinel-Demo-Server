@@ -23,6 +23,8 @@ services:
       DBPORT: "5432"
     ports:
       - "3001:3001"
+    labels:
+      com.datadoghq.ad.logs: '[{"source":"nodejs","service":"grabsentinel-backend"}]'
 
 volumes:
   todo_pgdata:
